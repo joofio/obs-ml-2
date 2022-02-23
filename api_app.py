@@ -24,10 +24,10 @@ ENC={0:"Cesariana",1:"Vaginal"}
 
 THRESHOLD=0.66667
 
-class BinX(str,Enum):
-    x = "X"
 
 
+class Apresentacao(str,Enum):
+    dsds="sas"
 class BishopScore(int, Enum):
     zero = 0
     one = 1
@@ -35,6 +35,13 @@ class BishopScore(int, Enum):
     three = 3
     four = 4
     five = 5
+    six = 6
+    seven = 7
+    eigth= 8
+    nine = 9
+    ten = 10
+    eleven =11
+    twelve = 12
 
 class BishopDilatacao(int, Enum):
     zero = 0
@@ -65,9 +72,9 @@ class BishopExtincao(int, Enum):
     five = 5
 
 class Bacia(str, Enum):
-    l = "L"
-    a = "ADEQUADA"
-    i = "INADEQUADA"
+    l = "Limite"
+    a = "Adequada"
+    i = "Inadequada"
 
 class FeatureImportance(BaseModel):
     IDADE_MATERNA: float
@@ -159,7 +166,7 @@ class ApresentacaoParto(str,Enum):
     five='Espádua'
 
 class BinSim(str,Enum):
-    yes="S"
+    yes="Sim"
 
 class TipoParto(str,Enum):
     ces="Cesariana"
