@@ -1,0 +1,13 @@
+fastapi
+scikit-learn
+pandas
+numpy
+uvicorn
+aiofiles
+python-multipart
+jinja2
+lightgbm
+streamlit
+plotly
+shap
+matplotlib
