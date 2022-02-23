@@ -42,6 +42,7 @@ cols_dicts={}
 #print(columns)
 keys=list(columns.keys())
 COL_VALUE=6
+replace_col=["apres.feto.34"]
 for i in range(0,total_cols,COL_VALUE):
     cols_dicts["col"+str(i)+"0"],cols_dicts["col"+str(i)+"1"],cols_dicts["col"+str(i)+"2"],cols_dicts["col"+str(i)+"3"],cols_dicts["col"+str(i)+"4"],cols_dicts["col"+str(i)+"5"]=st.columns(COL_VALUE)
     for j in range(0,COL_VALUE):
@@ -51,15 +52,23 @@ for i in range(0,total_cols,COL_VALUE):
         col=keys[i+j]
         value_col=columns[col]
        # print(value_col)
-        ncol=" ".join(col.split("_"))
-        #print(cols_dicts)
-       # print(col)
-        options=[str(cols) for cols in value_col[1]]
+        ncol=" ".join([c.capitalize() if c!="IMC" else c for c in col.split("_") ])
+
+        options=[str(cols).replace("nan","Desconhecido") for cols in value_col[1]]
+
         if value_col[0] in["cat","ord"]:
-              row[col]=[cols_dicts["col"+str(i)+str(j)].selectbox(ncol, options,key=col)]
+            if options==["0","1"]:
+                print(options)
+                options=["Não","Sim"]
+            row[col]=[cols_dicts["col"+str(i)+str(j)].selectbox(ncol, options,key=col)]
         #      
         if value_col[0] in["int"]:
-            row[col]=[cols_dicts["col"+str(i)+str(j)].number_input(ncol,min_value=value_col[1][0],max_value=value_col[1][1],value=value_col[1][2],step=0.5,key=col)]
+            max_val=value_col[1][1]
+            step=1.0
+
+            if max_val>1000:
+                step=100.0
+            row[col]=[cols_dicts["col"+str(i)+str(j)].number_input(ncol,min_value=value_col[1][0],max_value=max_val,value=value_col[1][2],step=step,key=col)]
 
 
 
@@ -107,7 +116,8 @@ def streamlit_predict(row):
    # st.write(row)
     st.dataframe(df)
 
-    X=pipeline.transform(df)
+    X=pipeline.transform(df.replace("Desconhecido","nan").replace("Não","0").replace("Sim","1"))
+    #X=pipeline.transform(df.replace("Desconhecido","nan"))
    # st.write("ipeline")
     df1=transfrom_array_to_df_onehot(pipeline,X,onehot=False,overal_imp=True)
    # st.dataframe(df1)
@@ -134,7 +144,7 @@ if explaining:
     st.pyplot(bbox_inches='tight',dpi=300,pad_inches=0)
     pl.clf()
     st.subheader("Force Plot")
-    shap.force_plot(explainer.expected_value[pred[0]], shap_values[pred[0]],df1,matplotlib=True,show=False,figsize=(40,10))
+    shap.force_plot(explainer.expected_value[pred[0]], shap_values[pred[0]],df1,matplotlib=True,show=False,figsize=(30,10))
     st.pyplot(bbox_inches='tight',dpi=300,pad_inches=0)
     pl.clf()
 
