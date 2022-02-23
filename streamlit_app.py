@@ -36,7 +36,7 @@ od = collections.OrderedDict(sorted(reversed_label_encoder.items()))
 with open('051_prod_feature_data.json') as json_file:
     columns = json.load(json_file)
 
-THRESHOLD=0.70
+THRESHOLD_DEF=0.70
 prc=pd.read_csv("prc.csv")
 tpr=pd.read_csv("tpr.csv",index_col=[0])
 auc_data=pd.read_csv("auc.csv")
@@ -127,7 +127,7 @@ def create_outcome(le,arr):
 
 make_prediction=st.sidebar.button('Make Prediction')
 explaining=st.sidebar.button('Make Prediction with Shap Values')
-
+THRESHOLD=st.sidebar.slider("Threshold for prediction", min_value=0.0, max_value=1.0, value=THRESHOLD_DEF, step=0.01)
 
 
 with st.expander("Thresholds Definition"):
