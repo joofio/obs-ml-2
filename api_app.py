@@ -277,22 +277,6 @@ app = FastAPI()
 
 
 
-def adddummy_variable(X,pl):
-    col_list_int = pl["preprocessor"].transformers_[0][2] #changes col location
-    ordinal_col=pl["preprocessor"].transformers[1][2]
-    original_col=pl["preprocessor"].transformers[2][2]
-    for c in col_list_int:
-        if c not in X.columns:
-            X[c]=0
-    for idx,c in enumerate(original_col):
-
-        if c not in X.columns:
-            X[c]=pipeline["preprocessor"].transformers_[2][1][1].categories_[idx][0]
-    for idx,c in enumerate(ordinal_col):
-        print(c)
-        if c not in X.columns:
-            X[c]=0
-    return X
 
 def create_outcome(arr,enc):
     outcome_dict={}
@@ -307,27 +291,16 @@ def create_result(y_pred_proba,threshold,enc):
     else:
         return enc[0]
 
-def preprocess_row(row,pipeline):
-    df=pd.DataFrame(row.__dict__,index=[0])
-    pred_cols=df.columns
-    X_=adddummy_variable(df.copy(),pipeline)
-
- #   print(X_)
-    X=pipeline.transform(X_)
-    df1=transfrom_array_to_df_onehot(pipeline,X,onehot=False)
-
-    X_new=df1.loc[:,pred_cols]
-    X_new['EUTOCITO_ANTERIOR_imput_indicator']=0
-    X_new['CESARIANAS_ANTERIOR_imput_indicator']=0
-    return X_new
 
 
-filename = '0152_dt.sav'
+filename = '051_prod_lgbm.sav'
 loaded_model = joblib.load(filename)
-filename2 = '0152_pipeline.sav'
-pipeline = joblib.load(filename2)
-#filename3 = 'streamlit-obs-ml/explainer_012.sav'
-#explainer = joblib.load(filename3)
+filename = '051_prod_pipeline.sav'
+pipeline = joblib.load(filename)
+
+filename = '051_prod_explainer.sav'
+explainer = joblib.load(filename)
+
 
 @app.get("/")
 async def root():
@@ -357,7 +330,7 @@ async def get_predict_proba(row: Features):
     result=create_result(pred_proba,THRESHOLD,ENC)
     outcome=create_outcome(pred_proba,ENC)
     print(outcome)
-    resp={"model":"DecisionTree","result":result,"outcome":outcome,"timestamp":datetime.datetime.now()}
+    resp={"model":"lightGBM","result":result,"outcome":outcome,"timestamp":datetime.datetime.now()}
     return resp
 
 @app.post("/decision",response_model=Decision)
