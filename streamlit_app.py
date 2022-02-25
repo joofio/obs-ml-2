@@ -52,6 +52,9 @@ cols_dicts={}
 keys=list(columns.keys())
 COL_VALUE=6
 
+st.header("Delivery Type Prediction")
+st.markdown("""Please select the options for the model to predict the delivery type. Click the button in the sidebar to start prediction""")
+
 for i in range(0,total_cols,COL_VALUE):
     cols_dicts["col"+str(i)+"0"],cols_dicts["col"+str(i)+"1"],cols_dicts["col"+str(i)+"2"],cols_dicts["col"+str(i)+"3"],cols_dicts["col"+str(i)+"4"],cols_dicts["col"+str(i)+"5"]=st.columns(COL_VALUE)
     for j in range(0,COL_VALUE):
@@ -82,21 +85,6 @@ for i in range(0,total_cols,COL_VALUE):
             row[col]=[cols_dicts["col"+str(i)+str(j)].number_input(ncol,min_value=value_col[1][0],max_value=max_val,value=value_col[1][2],step=step,key=col)]
 
 
-
-#for col,values in columns.items():
- #   pred_cols.append(col)
-  #  ncol=" ".join(col.split("_"))
-   # options=[str(cols).replace("nan","Unknown") for cols in values[1]]
-    #options=[str(cols) for cols in values[1]]
-
-  #  if values[0] in["cat","ord"]:
-  #      row[col]=[st.sidebar.selectbox(ncol, options,key=col)]
-  #      
- #   if values[0] in["int"]:
-  #      row[col]=[st.sidebar.number_input(ncol,min_value=values[1][0],max_value=values[1][1],value=values[1][2],step=0.5,key=col)]
-
-
-st.markdown("""Please select the options on the sidebar for the model to predict the delivery type. Click the button in the end of the sidebar to start prediction""")
 
 
 filename = '051_prod_lgbm.sav'
@@ -178,24 +166,13 @@ with st.expander("Thresholds Definition"):
 def streamlit_predict(row):
     df=pd.DataFrame.from_dict(row)
     st.write('Predicting for')
-   # st.write(row)
     st.dataframe(df)
-
     X=pipeline.transform(df.replace("Desconhecido","nan").replace("Não","0").replace("Sim","1"))
-    #X=pipeline.transform(df.replace("Desconhecido","nan"))
-   # st.write("ipeline")
     df1=transfrom_array_to_df_onehot(pipeline,X,onehot=False,overal_imp=True)
-   # st.dataframe(df1)
-   
-    #pred=loaded_model.predict(X)
     pred_proba=loaded_model.predict_proba(X)
-    #print(pred_proba)
-    #print(pred_proba[0][1])
     pred=predict_with_threshold(pred_proba[0][1],THRESHOLD)
     st.markdown("### The prediction is:  ")
-    #print(pred)
     st.write(reversed_label_encoder[pred])
-    #V
     st.dataframe(create_outcome(od,pred_proba))
     return df1,X,pred,pred_proba
 
@@ -207,6 +184,7 @@ if explaining:
     df1,X,pred,pred_proba=streamlit_predict(row)
     st.write('Explaining using SHAP values...')
     shap_values = explainer.shap_values(X,check_additivity=False)
+    
     #Now we can plot relevant plots that will help us analyze the model.
     st.subheader("Summary Plot")
     shap.summary_plot(shap_values, X, plot_type="bar", class_names= ["Cesariana","Vaginal"], feature_names = df1.columns)
