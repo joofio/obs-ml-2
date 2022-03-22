@@ -167,7 +167,7 @@ def streamlit_predict(row):
     df=pd.DataFrame.from_dict(row)
     st.write('Predicting for')
     st.dataframe(df)
-    X=pipeline.transform(df.replace("Desconhecido","nan").replace("Não","0").replace("Sim","1"))
+    X=pipeline.transform(df.replace("Desconhecido","nan"))
     df1=transfrom_array_to_df_onehot(pipeline,X,onehot=False,overal_imp=True)
     pred_proba=loaded_model.predict_proba(X)
     pred=predict_with_threshold(pred_proba[0][1],THRESHOLD)
