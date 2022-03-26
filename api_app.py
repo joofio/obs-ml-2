@@ -2,19 +2,9 @@ from fastapi import FastAPI
 import numpy as np
 import pandas as pd
 from sklearn.compose import ColumnTransformer
-from sklearn.impute import SimpleImputer
-from sklearn.impute import KNNImputer
-from sklearn.impute import MissingIndicator
+
 from sklearn.pipeline import Pipeline, make_pipeline
-from sklearn.preprocessing import (
-    FunctionTransformer,
-    LabelBinarizer,
-    LabelEncoder,
-    OneHotEncoder,
-    OrdinalEncoder,
-    StandardScaler,
-)
-from sklearn import preprocessing
+
 import json
 import joblib
 from help_functions import *
@@ -25,6 +15,13 @@ from fastapi.logger import logger as fastapi_logger
 from logging.handlers import RotatingFileHandler
 import logging
 from fastapi.encoders import jsonable_encoder
+from fhir.resources.patient import Patient
+from fhir.resources.communicationrequest import CommunicationRequest
+from fhir.resources.fhirtypes import CommunicationRequestType
+from fhir.resources.fhirtypes import CommunicationType
+
+from fhir.resources.communication import Communication
+
 
 formatter = logging.Formatter(
     "[%(asctime)s.%(msecs)03d] %(levelname)s [%(thread)d] - %(message)s",
@@ -499,3 +496,13 @@ async def get_decision(row: FeaturesWithDelivery):
         "decision": level,
     }
     return resp
+
+
+@app.post("/fhir/predict", response_model=CommunicationType)
+async def get_predict(row: CommunicationRequestType):
+    fastapi_logger.info("called predict")
+
+    return Communication()
+
+
+# name: HumanName = Field( None, alias="name", title="A name associated with the patient", description="A name associated with the individual.", # if property is element of this resource. element_property=True, )
