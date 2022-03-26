@@ -14,14 +14,13 @@ from enum import Enum
 from fastapi.logger import logger as fastapi_logger
 from logging.handlers import RotatingFileHandler
 import logging
+from fhir.resources.codeableconcept import CodeableConcept
 from fastapi.encoders import jsonable_encoder
-from fhir.resources.patient import Patient
-from fhir.resources.communicationrequest import CommunicationRequest
-from fhir.resources.fhirtypes import CommunicationRequestType
-from fhir.resources.fhirtypes import CommunicationType
-
-from fhir.resources.communication import Communication
-
+from fhir.resources.fhirtypes import (
+    FHIRPrimitiveExtensionType,
+    NarrativeType,
+    Code,
+)
 
 formatter = logging.Formatter(
     "[%(asctime)s.%(msecs)03d] %(levelname)s [%(thread)d] - %(message)s",
@@ -39,6 +38,16 @@ fastapi_logger.info("****************** Starting Server *****************")
 ENC = {0: "Cesariana", 1: "Vaginal"}
 
 THRESHOLD = 0.70000
+
+
+class CommunicationRequest(BaseModel):
+    status: Code
+    category: CodeableConcept
+
+
+class Communication(BaseModel):
+    status: Code
+    category: CodeableConcept
 
 
 class BishopScore(int, Enum):
@@ -498,8 +507,8 @@ async def get_decision(row: FeaturesWithDelivery):
     return resp
 
 
-@app.post("/fhir/predict", response_model=CommunicationType)
-async def get_predict(row: CommunicationRequestType):
+@app.post("/fhir/predict", response_model=Communication)
+async def get_predict(row: CommunicationRequest):
     fastapi_logger.info("called predict")
 
     return Communication()
